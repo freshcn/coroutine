@@ -1,4 +1,4 @@
-module github.com/freshcn/coroutine
+module github.com/freshcn/coroutine/v2
 
 go 1.13
 
