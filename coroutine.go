@@ -9,31 +9,37 @@ import (
 	"github.com/freshcn/log"
 )
 
-var (
+// Group 主处理组
+type Group struct {
 	wait sync.WaitGroup
-)
+}
 
-// Add 添加一个新的等待项
-func Add(nums ...int) {
+// Default 默认的处理组
+var Default = Group{}
+
+// add 添加一个新的等待项
+func (g *Group) add(nums ...int) {
 	var num = 1
 	if len(nums) > 0 {
 		num = nums[0]
 	}
-	wait.Add(num)
+	g.wait.Add(num)
 }
 
-// Done 完成一个等待
-func Done() {
-	wait.Done()
+// done 完成一个等待
+func (g *Group) done() {
+	g.wait.Done()
 }
 
 // Wait 等候完成
-func Wait() {
-	wait.Wait()
+func (g *Group) Wait() {
+	g.wait.Wait()
 }
 
 // Run 运行一个协程
-func Run(handler interface{}, parames ...interface{}) bool {
+// handler 是要运行的处理函数，可以接受多个参数
+// parames 需要发给handler接受的参数，顺序和函数需要接受的顺序一样
+func (g *Group) Run(handler interface{}, parames ...interface{}) bool {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error(err)
@@ -56,9 +62,9 @@ func Run(handler interface{}, parames ...interface{}) bool {
 	}
 
 	// 开始运行一个新的协程
-	Add()
+	g.add()
 	go func() {
-		defer Done()
+		defer g.done()
 		handlerFUNC.Call(handlerParames)
 	}()
 
